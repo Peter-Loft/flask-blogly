@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Edit User</h1>
+<form action="/" method="post">
+  <label for="fname-input">First Name</label>
+  <input id="fname-input" name="fname" 
+      placeholder="Enter a first name" value="{{ first_name }}">
+  <br>
+  <label for="lname-input">Last Name</label>
+  <input id="lname-input" name="lname" 
+      placeholder="Enter a last name" value="{{ last_name }}">
+  <br>
+  <label for="image-input">Image URL</label>
+  <input id="image-input" name="image_url" 
+      placeholder="Provide an image of this user" value="{{ img_url }}">
+  <br>
+  <!-- implement bootstrap for this -->
+  <a class="btn btn-outline-secondary" href="/users/{{ user_id }}">Cancel</a>
+  <button type="submit">Save</button>
+</form>
+{% endblock %}
