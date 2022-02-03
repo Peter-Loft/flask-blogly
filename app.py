@@ -49,6 +49,7 @@ def add_user():
         flash("First name required")
         return redirect("/users/new")
 
+
     if not user_data.get("lname"):
         user_data["lname"] = None
 
@@ -64,15 +65,19 @@ def add_user():
     db.session.commit()
     return redirect("/users")
 
-
-@app.get("/users/<user_id>")
+# CR: May be some place in the code where there is a link that puts 
+# a None value in for a URL or user_id (user's details page)
+@app.get("/users/<int:user_id>")
 def user_details(user_id):
     """Details about a specific user"""
-
-    if user_id is None:
-        breakpoint()
+    
     user = User.query.get_or_404(user_id)
     return render_template("user_details.html", user=user)
 
 
-# @app.get("/users/<user_id>/")
+@app.get("/users/<user_id>/edit")
+def edit_user_form(user_id):
+    """ Gets user via user_id and provides from to edit details"""
+
+    user = User.query.get_or_404(user_id)
+    return render_template("edit_user.html", user=user)
