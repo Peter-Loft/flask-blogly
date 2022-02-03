@@ -122,18 +122,19 @@ def add_post_form(user_id):
 @app.post("/users/<int:user_id>/posts/new")
 def add_post(user_id):
     """Logic for creating new post, redirects"""
-    
+
     form_data = request.form
 
     post = Post(
         title=form_data.get("title"),
         content=form_data.get("content"),
-        user_id = user_id
+        user_id=user_id,
     )
     db.session.add(post)
     db.session.commit()
 
     return redirect(f"/users/{user_id}")
+
 
 @app.get("/posts/<int:post_id>")
 def post_details(post_id):
@@ -141,3 +142,36 @@ def post_details(post_id):
 
     post = Post.query.get_or_404(post_id)
     return render_template("post_details.html", post=post)
+
+
+@app.get("/posts/<int:post_id>/edit")
+def post_edit_form(post_id):
+    """Form for editting a post"""
+
+    post = Post.query.get_or_404(post_id)
+    return render_template("edit_post.html", post=post)
+
+
+@app.post("/posts/<int:post_id>/edit")
+def post_edit(post_id):
+    """Handle editting of a post"""
+
+    form_data = request.form
+    post = Post.query.get_or_404(post_id)
+
+    post.title = form_data["title"]
+    post.content = form_data["content"]
+    db.session.commit()
+
+    return redirect(f"/posts/{post_id}")
+
+
+@app.post("/posts/<int:post_id>/delete")
+def post_delete(post_id):
+    """Delete a post"""
+
+    post = Post.query.get_or_404(post_id)
+    # user_id = post.user_id
+    db.session.delete(post)
+    db.session.commit()
+    return redirect(f"/users/{post.user_id}")
