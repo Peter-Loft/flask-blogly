@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from app import app, db
-from models import DEFAULT_IMAGE_URL, User
+from models import User
 
 # Let's configure our app to use a different database for tests
 app.config['DATABASE_URL'] = "postgresql:///blogly_test"
@@ -33,10 +33,10 @@ class UserViewTestCase(TestCase):
 
         test_user = User(first_name="test_first",
                                     last_name="test_last",
-                                    image_url=None)
+                                    image_url="")
 
         second_user = User(first_name="test_first_two", last_name="test_last_two",
-                           image_url=None)
+                           image_url="")
 
         db.session.add_all([test_user, second_user])
         db.session.commit()
@@ -51,10 +51,43 @@ class UserViewTestCase(TestCase):
         """Clean up any fouled transaction."""
         db.session.rollback()
 
-    def test_list_users(self):
+    def test_users_list(self):
         with self.client as c:
             resp = c.get("/users")
             self.assertEqual(resp.status_code, 200)
             html = resp.get_data(as_text=True)
             self.assertIn("test_first", html)
             self.assertIn("test_last", html)
+
+    def test_add_user_form(self):
+        with self.client as c:
+            resp = c.get("/users/new")
+            self.assertEqual(resp.status_code, 200)
+            html = resp.get_data(as_text=True)
+            self.assertIn("Add User Page Verficiation",html)
+
+    def test_add_user(self):
+        with self.client as c:
+            resp = c.post("/users/new", 
+                        data = {"fname":"SPIKE",
+                                "lname":"PORCUPINE",
+                                "image_url":""},
+                        follow_redirects = True)
+            
+            html = resp.get_data(as_text=True)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn(" Users list, homepage ", html)
+
+            new_user = User.query.filter(User.first_name == "SPIKE").first()
+            self.assertEqual(new_user.first_name, "SPIKE")
+            self.assertEqual(new_user.last_name, "PORCUPINE")
+            self.assertEqual(new_user.image_url, "")
+
+    def test_delete(self):
+        with self.client as c:
+            resp = c.post(f"/users/{self.user_id}/delete",
+                            follow_redirects = True)
+
+            html = resp.get_data(as_text=True)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn(" Users list, homepage ", html)
