@@ -3,7 +3,7 @@
 from flask import Flask, render_template, request, redirect, flash
 from flask_debugtoolbar import DebugToolbarExtension
 
-from models import db, connect_db, User
+from models import db, connect_db, User, Post
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql:///blogly"
@@ -121,7 +121,23 @@ def add_post_form(user_id):
 
 @app.post("/users/<int:user_id>/posts/new")
 def add_post(user_id):
-    """Form for creating new post"""
+    """Logic for creating new post, redirects"""
+    
+    form_data = request.form
 
-    # user = User.query.get_or_404(user_id)
-    # return render_template("add_post.html", user=user)
+    post = Post(
+        title=form_data.get("title"),
+        content=form_data.get("content"),
+        user_id = user_id
+    )
+    db.session.add(post)
+    db.session.commit()
+
+    return redirect(f"/users/{user_id}")
+
+@app.get("/posts/<int:post_id>")
+def post_details(post_id):
+    """Details about a specific post"""
+
+    post = Post.query.get_or_404(post_id)
+    return render_template("post_details.html", post=post)
