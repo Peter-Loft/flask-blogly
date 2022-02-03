@@ -28,6 +28,7 @@ def homepage():
 @app.get("/users")
 def users_list():
     """Displays list of all users"""
+    
 
     return render_template("users_list.html")
 
@@ -43,10 +44,16 @@ def add_user_form():
 def add_user():
     """Creates new user and saves to database"""
 
-    user_data = request.form
+    user_data = dict(request.form)
     if not user_data.get("fname"):
         flash("First name required")
         return redirect("/users/new")
+
+    if not user_data.get("lname"):
+        user_data["lname"] = None
+    
+    if not user_data.get("image_url"):
+        user_data["image_url"] = None
 
     user = User(
         first_name=user_data.get("fname"),
@@ -64,4 +71,5 @@ def user_details(user_id):
 
     # More SQLAlchemy stuff to get user from table
     # and then pass that info to the *user=user
+
     return render_template("user_details.html")
