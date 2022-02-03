@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from app import app, db
-from models import User
+from models import User, Post
 
 # Let's configure our app to use a different database for tests
 app.config["DATABASE_URL"] = "postgresql:///blogly_test"
@@ -28,6 +28,7 @@ class UserViewTestCase(TestCase):
         # As you add more models later in the exercise, you'll want to delete
         # all of their records before each test just as we're doing with the
         # User model below.
+        Post.query.delete()
         User.query.delete()
 
         self.client = app.test_client()
@@ -45,11 +46,21 @@ class UserViewTestCase(TestCase):
         db.session.add_all([test_user, second_user])
         db.session.commit()
 
+        whisky_post = Post(
+            title="Whiskeys Opinions",
+            content="I have none.",
+            user_id=second_user.id
+        )
+
+        db.session.add(whisky_post)
+        db.session.commit()
+
         # We can hold onto our test_user's id by attaching it to self (which is
         # accessible throughout this test class). This way, we'll be able to
         # rely on this user in our tests without needing to know the numeric
         # value of their id, since it will change each time our tests are run.
         self.user_id = test_user.id
+        self.post = whisky_post
 
     def tearDown(self):
         """Clean up any fouled transaction."""
@@ -136,3 +147,40 @@ class UserViewTestCase(TestCase):
             html = resp.get_data(as_text=True)
             self.assertEqual(resp.status_code, 200)
             self.assertIn(" Users list, homepage ", html)
+
+# ============================================================
+# POST TESTS
+# ============================================================
+
+    def test_post_details(self):
+        """Test display of post details"""
+
+        with self.client as c:
+            resp = c.get(f"/posts/{self.post.id}")
+            html = resp.get_data(as_text=True)
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn("Post detail page verification", html)
+            self.assertIn(self.post.title, html)
+            self.assertIn(self.post.content, html)
+
+    def test_post_edit(self):
+        """ Test logic to edit post"""
+
+        with self.client as c:
+            resp = c.post(f"/posts/{self.post.id}/edit",
+                          data={
+                              "title": "Hello",
+                              "content": "Big wide World",
+                              "user_id": self.post.user_id
+                          },
+                          follow_redirects=True)
+
+            html = resp.get_data(as_text=True)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn("Hello", html)
+            self.assertIn("Big wide World", html)
+
+            edited_post = Post.query.filter(Post.id == self.post.id).first()
+            self.assertEqual(edited_post.title, "Hello")
+            self.assertEqual(edited_post.content, "Big wide World")
