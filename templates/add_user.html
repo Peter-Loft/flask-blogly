@@ -2,6 +2,10 @@
 
 {% block content %}
 <h1>Create a user</h1>
+{% for msg in get_flashed_messages() %}
+<p>{{ msg }}</p>
+{% endfor %}
+
 <form action="/users/new" method="post">
   <label for="fname-input"></label>
   <input id="fname-input" name="fname" placeholder="Enter a first name">
