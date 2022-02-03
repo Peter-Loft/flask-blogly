@@ -44,7 +44,7 @@ def add_user_form():
 def add_user():
     """Creates new user and saves to database"""
 
-    user_data = dict(request.form)
+    user_data = request.form
     if not user_data.get("fname"):
         flash("First name required")
         return redirect("/users/new")
@@ -81,7 +81,7 @@ def edit_user_form(user_id):
 def edit_user(user_id):
     """Processes changing user details"""
 
-    user_data = dict(request.form)
+    user_data = request.form
 
     user = User.query.get_or_404(user_id)
     user.first_name = user_data.get("fname")
