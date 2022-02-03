@@ -28,9 +28,9 @@ def homepage():
 @app.get("/users")
 def users_list():
     """Displays list of all users"""
-    
 
-    return render_template("users_list.html")
+    users = User.query.all()
+    return render_template("users_list.html", users=users)
 
 
 @app.get("/users/new")
@@ -51,7 +51,7 @@ def add_user():
 
     if not user_data.get("lname"):
         user_data["lname"] = None
-    
+
     if not user_data.get("image_url"):
         user_data["image_url"] = None
 
@@ -69,7 +69,10 @@ def add_user():
 def user_details(user_id):
     """Details about a specific user"""
 
-    # More SQLAlchemy stuff to get user from table
-    # and then pass that info to the *user=user
+    if user_id is None:
+        breakpoint()
+    user = User.query.get_or_404(user_id)
+    return render_template("user_details.html", user=user)
 
-    return render_template("user_details.html")
+
+# @app.get("/users/<user_id>/")
