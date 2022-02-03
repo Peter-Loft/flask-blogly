@@ -2,11 +2,14 @@
 
 {% block content %}
 
-<img src="{{ user.image_url }}" alt = "">
+<img src="{{ user.image_url }}" alt="">
 <h1>
   {{ user.first_name }}
   {% if user.last_name is not none %} {{ user.last_name }}{% endif %}
 </h1>
-<a href="/users/{{user.id}}/edit" class="btn btn-primary">Edit</a>
-<a href="/" class="btn btn-danger">Delete</a>
+<form action="/users/{{ user.id }}/delete" method="post">
+  <a href="/users/{{user.id}}/edit" class="btn btn-primary">Edit</a>
+  <!-- <a href="/" class="btn btn-danger">Delete</a> -->
+  <button type="submit" class="btn btn-danger">Delete</button>
+</form>
 {% endblock %}

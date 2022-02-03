@@ -49,13 +49,6 @@ def add_user():
         flash("First name required")
         return redirect("/users/new")
 
-
-    if not user_data.get("lname"):
-        user_data["lname"] = None
-
-    if not user_data.get("image_url"):
-        user_data["image_url"] = None
-
     user = User(
         first_name=user_data.get("fname"),
         last_name=user_data.get("lname"),
@@ -65,19 +58,44 @@ def add_user():
     db.session.commit()
     return redirect("/users")
 
-# CR: May be some place in the code where there is a link that puts 
+
+# CR: May be some place in the code where there is a link that puts
 # a None value in for a URL or user_id (user's details page)
 @app.get("/users/<int:user_id>")
 def user_details(user_id):
     """Details about a specific user"""
-    
+
     user = User.query.get_or_404(user_id)
     return render_template("user_details.html", user=user)
 
 
-@app.get("/users/<user_id>/edit")
+@app.get("/users/<int:user_id>/edit")
 def edit_user_form(user_id):
-    """ Gets user via user_id and provides from to edit details"""
+    """Gets user via user_id and provides from to edit details"""
 
     user = User.query.get_or_404(user_id)
     return render_template("edit_user.html", user=user)
+
+
+@app.post("/users/<int:user_id>/edit")
+def edit_user(user_id):
+    """Processes changing user details"""
+
+    user_data = dict(request.form)
+
+    user = User.query.get_or_404(user_id)
+    user.first_name = user_data.get("fname")
+    user.last_name = user_data.get("lname")
+    user.image_url = user_data.get("image_url")
+    db.session.commit()
+
+    return redirect("/users")
+
+
+@app.post("/users/<int:user_id>/delete")
+def delete_user(user_id):
+    """Delete a user"""
+
+    User.query.filter(User.id == user_id).delete()
+    db.session.commit()
+    return redirect("/users")
