@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>
+  Add Post for {{ user.first_name }}
+  {% if user.last_name is not none %} {{ user.last_name }}{% endif %}
+</h1>
+{% for msg in get_flashed_messages() %}
+<p>{{ msg }}</p>
+{% endfor %}
+
+<form action="/users/{{ user.id }}/posts/new" method="post">
+  <label for="title-input">Title</label>
+  <input id="title-input" name="title">
+  <br>
+  <label for="content-input">Content</label>
+  <input id="content-input" name="content">
+  <br>
+  <a href="/users/{{ user.id }}" class="btn btn-info">Cancel</a>
+  <button type="submit" class="btn btn-success">Add</button>
+</form>
+<!-- Add Post Page Verficiation -->
+{% endblock %}

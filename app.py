@@ -25,6 +25,11 @@ def homepage():
     return redirect("/users")
 
 
+# ============================================================
+# USER ROUTES
+# ============================================================
+
+
 @app.get("/users")
 def users_list():
     """Displays list of all users"""
@@ -99,3 +104,24 @@ def delete_user(user_id):
     User.query.filter(User.id == user_id).delete()
     db.session.commit()
     return redirect("/users")
+
+
+# ============================================================
+# POST ROUTES
+# ============================================================
+
+
+@app.get("/users/<int:user_id>/posts/new")
+def add_post_form(user_id):
+    """Form for creating new post"""
+
+    user = User.query.get_or_404(user_id)
+    return render_template("add_post.html", user=user)
+
+
+@app.post("/users/<int:user_id>/posts/new")
+def add_post(user_id):
+    """Form for creating new post"""
+
+    # user = User.query.get_or_404(user_id)
+    # return render_template("add_post.html", user=user)
