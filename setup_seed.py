@@ -1,13 +1,15 @@
 """Seed file to make sample data for pets db."""
 
-from models import db, User, Post
+from models import db, User, Post, Tag, PostTag
 from app import app
 
 # Create all tables
 db.drop_all()
 db.create_all()
 
-# If table isn't empty, empty it
+# If table isn't empty, empty if
+PostTag.query.delete()
+Tag.query.delete()
 Post.query.delete()
 User.query.delete()
 
@@ -47,3 +49,18 @@ db.session.add(bowser_post)
 
 # Commit--otherwise, this never gets saved!
 db.session.commit()
+
+
+# Create Tags
+tag1 = Tag(name="opinion")
+tag2 = Tag(name="nsfw")
+
+db.session.add(tag1)
+db.session.add(tag2)
+
+whisky_post.tags.append(tag1)
+bowser_post.tags.append(tag2)
+
+db.session.commit()
+
+# PostTag auto populated
